@@ -7,14 +7,18 @@ import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 
 public class NeuralNetworkFactory {
-    NeuralNetwork createNetwork( //TODO prettify
+    public NeuralNetwork createNetwork( //TODO prettify
             ActivationFunction activationFunction,
             int... layerSizes) {
-        LinkedList<NeuralLayer> layers = Arrays.stream(layerSizes)
-                .mapToObj(i -> toLayer(i, activationFunction))
-                .collect(toCollection(LinkedList::new));
+        LinkedList<NeuralLayer> layers = createLayers(activationFunction, layerSizes);
         connect(layers);
         return new NeuralNetwork(layers);
+    }
+
+    private LinkedList<NeuralLayer> createLayers(ActivationFunction activationFunction, int[] layerSizes) {
+        return Arrays.stream(layerSizes)
+                .mapToObj(i -> toLayer(i, activationFunction))
+                .collect(toCollection(LinkedList::new));
     }
 
     private NeuralLayer toLayer(int layerSize, ActivationFunction activationFunction) {

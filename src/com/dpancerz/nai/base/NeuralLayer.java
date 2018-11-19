@@ -17,11 +17,11 @@ class NeuralLayer {
         return neurons.iterator().next().inputSize();
     }
 
-    void propagate() {
+    void propagate() {// TODO
 
     }
 
-    void backPropagate() {
+    void backPropagate() {// TODO
 
     }
 

@@ -1,6 +1,6 @@
 package com.dpancerz.nai.base;
 
-public class OutputHolder implements ValueHolder {
+class OutputHolder implements ValueHolder {
     private double value;
 
     @Override

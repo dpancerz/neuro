@@ -1,6 +1,5 @@
 package com.dpancerz.nai.base;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 

@@ -8,7 +8,7 @@ class Neuron {
     private final Set<Dendrite> dendrites;
     private final ActivationFunction activationFunction;
 
-    public Neuron(ActivationFunction activationFunction) {
+    Neuron(ActivationFunction activationFunction) {
         this.axon = new Axon();
         this.dendrites = new HashSet<>();
         this.activationFunction = activationFunction;
