@@ -17,15 +17,26 @@ class NeuralLayer {
         return neurons.iterator().next().inputSize();
     }
 
-    void propagate() {// TODO
-
+    void propagate() {
+        neurons.forEach(Neuron::propagate);
     }
 
-    void backPropagate() {// TODO
+    void calculateErrors() {
+        neurons.forEach(Neuron::calculateError);
+    }
 
+    void learn() {
+        neurons.forEach(Neuron::learn);
     }
 
     List<Neuron> neurons() {
         return neurons;
+    }
+
+    @Override
+    public String toString() {
+        return "NeuralLayer{" +
+                "neurons=" + neurons +
+                '}';
     }
 }

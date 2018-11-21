@@ -1,24 +1,51 @@
 package com.dpancerz.nai.base;
 
 class Dendrite implements ValueHolder {
-    private double value;
+    private double signal;
     private double weight;
+    private double error;
 
     Dendrite() {
-        this.weight = Math.random();
+        this(Math.random());
+    }
+
+    Dendrite(double weight) {
+        this.weight = weight;
     }
 
     @Override
     public double value() {
-        return weight * value;
+        return weight * signal;
     }
 
     @Override
     public void setValue(double value) {
-        this.value = value;
+        this.signal = value;
     }
 
-    public void setWeight(double weight) { //TODO likely to be replaced with "learn"
-        this.weight = weight;
+    @Override
+    public double weightedError() {
+        return weight * error;
+    }
+
+    double getWeight() {
+        return weight;
+    }
+
+    void learnWith(double coefficient) {
+        this.weight += (coefficient * error * signal);
+    }
+
+    void setError(double error) {
+        this.error = error;
+    }
+
+    @Override
+    public String toString() {
+        return "Dendrite{" +
+                "signal=" + signal +
+                ", weight=" + weight +
+                ", error=" + error +
+                '}';
     }
 }

@@ -1,22 +1,44 @@
 package com.dpancerz.nai.base;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
 
 class Neuron {
     private final Axon axon;
-    private final Set<Dendrite> dendrites;
+    private final List<Dendrite> dendrites;
+    private final Dendrite bias;
     private final ActivationFunction activationFunction;
+    private final double learningCoefficient;
+    private double signal;
+    private double error;
 
-    Neuron(ActivationFunction activationFunction) {
+    Neuron(ActivationFunction activationFunction,
+           List<Dendrite> dendrites, Dendrite bias,
+           double learningCoefficient) {
         this.axon = new Axon();
-        this.dendrites = new HashSet<>();
+        this.dendrites = dendrites;
         this.activationFunction = activationFunction;
-        addBias();
+        this.learningCoefficient = learningCoefficient;
+        this.bias = bias;
+    }
+
+    Neuron(ActivationFunction activationFunction,
+           double learningCoefficient) {
+        this.axon = new Axon();
+        this.dendrites = new ArrayList<>();
+        this.activationFunction = activationFunction;
+        this.learningCoefficient = learningCoefficient;
+        this.bias = new Dendrite();
+        bias.setValue(1.0);
     }
 
     int inputSize() {
-        return dendrites.size() - 1;
+        return visibleDendrites().size();
+    }
+
+    List<Dendrite> visibleDendrites() {
+        return dendrites;
     }
 
     void addListener(Neuron listener) {
@@ -28,27 +50,65 @@ class Neuron {
         this.axon.addOutput(listener);
     }
 
+    void setInput(double[] input) { //I really don't like this method- it's against regular flow
+        IntStream.range(0, input.length)
+                .forEach(i ->
+                        visibleDendrites().get(i).setValue(input[i])
+                );
+    }
+
     void propagate() {
+        this.signal = calculateInputSum();
         double calculated = activationFunction.applyAsDouble(
-                calculateInputSum()
+                this.signal
         );
         axon.propagate(calculated);
     }
 
-    private Dendrite newDendrite() {
+    void calculateError() {
+        error = activationFunction.derivative(signal) * axon.sumWeightedErrors();
+        myDendrites().forEach(d -> d.setError(error));
+    }
+
+    void learn() {
+        myDendrites().forEach(d -> d.learnWith(learningCoefficient));
+    }
+
+    Dendrite newDendrite() {
         Dendrite newDendrite = new Dendrite();
         this.dendrites.add(newDendrite);
         return newDendrite;
     }
 
-    private double calculateInputSum() {
-        return dendrites.stream()
-                .reduce(0.0,
-                        (value, d) -> value + d.value(),
-                        (a, b) -> a + b);
+    double getSignal() {
+        return signal;
     }
 
-    private void addBias() {
-        newDendrite().setValue(1.0);
+    double getError() {
+        return error;
+    }
+
+    private double calculateInputSum() {
+        return myDendrites().stream()
+                .mapToDouble(Dendrite::value)
+                .reduce(0.0, (a, b) -> a + b);
+    }
+
+    private List<Dendrite> myDendrites() {
+        ArrayList<Dendrite> myDendrites = new ArrayList<>(visibleDendrites());
+        myDendrites.add(bias);
+        return myDendrites;
+    }
+
+    @Override
+    public String toString() {
+        return "Neuron{" +
+                "dendrites=" + dendrites +
+                ", bias=" + bias +
+                '}';
+    }
+
+    Dendrite bias() {
+        return bias;
     }
 }

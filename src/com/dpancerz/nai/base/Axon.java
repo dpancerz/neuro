@@ -19,4 +19,17 @@ class Axon {
     void addOutput(ValueHolder listener) {
         outputs.add(listener);
     }
+
+    double sumWeightedErrors() {
+        return outputs.stream()
+                .mapToDouble(ValueHolder::weightedError)
+                .sum();
+    }
+
+    @Override
+    public String toString() {
+        return "Axon{" +
+                "outputs=" + outputs +
+                '}';
+    }
 }

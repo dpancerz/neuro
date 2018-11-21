@@ -1,32 +1,26 @@
 package com.dpancerz.nai.base;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static java.lang.String.format;
 
 public class NeuralNetwork {
     private final LinkedList<NeuralLayer> layers;
-    private final List<ValueHolder> outputHolders;
+    private final List<NeuralNetworkOutput> outputHolders;
     private final int inputSize;
     private final int outputSize;
+    private final double learningCoefficient;
 
-    public NeuralNetwork(LinkedList<NeuralLayer> layers) {
+    public NeuralNetwork(LinkedList<NeuralLayer> layers,
+                         double learningCoefficient) {
         this.layers = layers;
         this.inputSize = layers.getFirst().inputSize();
         this.outputSize = layers.getLast().size();
         this.outputHolders = createOutputHolders(layers.getLast());
-    }
-
-
-    private List<ValueHolder> createOutputHolders(NeuralLayer last) {
-        LinkedList<ValueHolder> valueHolders = new LinkedList<>();
-        for (Neuron neuron: last.neurons()) {
-            OutputHolder listener = new OutputHolder();
-            neuron.addListener(listener);
-            valueHolders.addLast(listener);
-        }
-        return valueHolders;
+        this.learningCoefficient = learningCoefficient;
     }
 
     public double[] output() {
@@ -36,16 +30,51 @@ public class NeuralNetwork {
     }
 
     public double[] test(double[] input) {
-        return null;
+        pushThrough(input);
+        return output();
     }
 
-    void learn(double[] input, double[] expectedOutput) {
+    public void train(double[] input, double[] expectedOutput) {
         checkPreconditions(input, expectedOutput);
+        pushThrough(input);
+        calculateErrors(expectedOutput);
+        learn();
+    }
 
-
+    private void pushThrough(double[] input) {
+        setSignals(input);
         layers.forEach(NeuralLayer::propagate);
-//        boolean test = layers.getLast().test(expectedOutput);
+    }
 
+    private void calculateErrors(double[] expectedOutput) {
+        IntStream.range(0, expectedOutput.length)
+                .forEach(i -> outputHolders.get(i)
+                                .setExpectedValue(expectedOutput[i]));
+
+        Iterator<NeuralLayer> reverseIterator = layers.descendingIterator();
+        while (reverseIterator.hasNext()) {
+            reverseIterator.next().calculateErrors();
+        }
+    }
+
+    private void learn() {
+        layers.forEach(NeuralLayer::learn);
+    }
+
+    private List<NeuralNetworkOutput> createOutputHolders(NeuralLayer last) {
+        LinkedList<NeuralNetworkOutput> valueHolders = new LinkedList<>();
+        for (Neuron neuron: last.neurons()) {
+            NeuralNetworkOutput listener = new NeuralNetworkOutput();
+            neuron.addListener(listener);
+            valueHolders.addLast(listener);
+        }
+        return valueHolders;
+    }
+
+    private void setSignals(double[] input) {
+        layers.getFirst()
+                .neurons()
+                .forEach(neuron -> neuron.setInput(input));
     }
 
     private void checkPreconditions(double[] input, double[] expectedOutput) {
@@ -61,7 +90,14 @@ public class NeuralNetwork {
                 || expectedOutput.length != outputSize;
     }
 
-    private void log(String message) {
-        System.out.println(message);
+    @Override
+    public String toString() {
+        return "NeuralNetwork{" +
+                "layers=" + layers +
+                ", outputHolders=" + outputHolders +
+                ", inputSize=" + inputSize +
+                ", outputSize=" + outputSize +
+                ", learningCoefficient=" + learningCoefficient +
+                '}';
     }
 }
