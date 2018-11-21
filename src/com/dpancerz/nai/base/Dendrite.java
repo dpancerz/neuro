@@ -6,7 +6,7 @@ class Dendrite implements ValueHolder {
     private double error;
 
     Dendrite() {
-        this(Math.random());
+        this((Math.random()-0.2)/10.0);
     }
 
     Dendrite(double weight) {

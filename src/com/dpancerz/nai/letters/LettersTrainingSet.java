@@ -1,4 +1,4 @@
-package com.dpancerz.nai;
+package com.dpancerz.nai.letters;
 
 import com.dpancerz.nai.base.TrainingSet;
 
@@ -7,31 +7,32 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static com.dpancerz.nai.Numbers.*;
+import static com.dpancerz.nai.letters.Letters.*;
 
-class NumbersTrainingSet implements TrainingSet {
-    private final NumbersToTrainingConverter converter;
+class LettersTrainingSet implements TrainingSet {
+    private final LettersToTrainingConverter converter;
 
-    static final int NUMBER_OF_INPUTS = ONE.length();
+    static final int NUMBER_OF_INPUTS = A.length();
 
     private static final Map<Integer, String> LEARNING_SET = new HashMap<>() {{
-        put(1, ONE);
-        put(2, TWO);
-        put(3, THREE);
-        put(4, FOUR);
-        put(5, FIVE);
+        put(1, A);
+        put(2, B);
+        put(3, C);
+        put(4, D);
+        put(5, E);
+        put(6, F);
     }};
 
     private static final Map<String, Integer> TEST_SET = new HashMap<>() {{
-        put(ONE_MODIFIED, 1);
-        put(TWO_MODIFIED, 2);
-        put(THREE_MODIFIED, 3);
-        put(FOUR_MODIFIED, 4);
-        put(FIVE_MODIFIED, 5);
-        put(SIX_MAYBE_READ_AS_FIVE, 5);
+        put(A_MODIFIED, 1);
+        put(B_MODIFIED, 2);
+        put(C_MODIFIED, 3);
+        put(D_MODIFIED, 4);
+        put(E_MODIFIED, 5);
+        put(F_MODIFIED, 6);
     }};
 
-    NumbersTrainingSet(NumbersToTrainingConverter converter) {
+    LettersTrainingSet(LettersToTrainingConverter converter) {
         this.converter = converter;
     }
 

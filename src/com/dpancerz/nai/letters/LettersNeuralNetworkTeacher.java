@@ -1,4 +1,4 @@
-package com.dpancerz.nai;
+package com.dpancerz.nai.letters;
 
 import com.dpancerz.nai.base.Config;
 import com.dpancerz.nai.base.NeuralNetwork;
@@ -6,28 +6,31 @@ import com.dpancerz.nai.base.NeuralNetworkFactory;
 import com.dpancerz.nai.base.math.SigmoidFunction;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import static com.dpancerz.nai.NumbersTrainingSet.NUMBER_OF_INPUTS;
+import static com.dpancerz.nai.letters.LettersTrainingSet.NUMBER_OF_INPUTS;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 
-class NumbersNeuralNetworkTeacher {
-    private final NumbersTrainingSet trainingSet;
-    private final NumbersToTrainingConverter converter;
+public class LettersNeuralNetworkTeacher {
+    private final LettersTrainingSet trainingSet;
+    private final LettersToTrainingConverter converter;
 
-    static final int SECOND_LAYER_SIZE = 3;
-    static final int FIRST_LAYER_SIZE = (SECOND_LAYER_SIZE + NUMBER_OF_INPUTS) / 2;
+    static final int SECOND_LAYER_SIZE = 6;
+    static final int FIRST_LAYER_SIZE = ((SECOND_LAYER_SIZE + NUMBER_OF_INPUTS) / 2) + 2;
 
-    public NumbersNeuralNetworkTeacher(NumbersTrainingSet trainingSet,
-                                       NumbersToTrainingConverter converter) {
+    public LettersNeuralNetworkTeacher(LettersTrainingSet trainingSet,
+                                       LettersToTrainingConverter converter) {
         this.trainingSet = trainingSet;
         this.converter = converter;
     }
 
     public void run() {
         NeuralNetwork network = createNetwork();
-        trainTimes(5, network);
+        trainTimes(100, network);
         verify(network);
     }
 
@@ -53,7 +56,7 @@ class NumbersNeuralNetworkTeacher {
 
     private void test(NeuralNetwork network, double[] input, double[] category) {
         double[] result = network.test(input);
-        boolean passes = Arrays.equals(category, result);
+        boolean passes = maxesEqual(category, result);
 
         log(passes ? format("correctly recognized %s",
                         converter.fromOutputToCategory(category))
@@ -62,18 +65,29 @@ class NumbersNeuralNetworkTeacher {
                         converter.fromOutputToCategory(result)));
     }
 
+    private boolean maxesEqual(double[] category, double[] result) {
+        int a = findMax(category);
+        int b = findMax(result);
+        return a == b;
+    }
+
+    private int findMax(double[] result) {
+        return converter.findMax(result);
+    }
+
     private void trainTimes(int times, NeuralNetwork network) {
         IntStream.range(0, times)
                 .forEach(i -> {
                     train(network);
-                    logErrors(network, i);
-                    log(network.toString());//TODO remove
+                    logErrors(network, i + 1);
+//                    log(network.toString());//TODO remove
                 });
     }
 
     private void train(NeuralNetwork network) {
-        trainingSet.trainingSet()
-                .forEach(e -> network.train(e.getKey(), e.getValue()));
+        List<Map.Entry<double[], double[]>> entries = trainingSet.trainingSet().collect(toList());
+        Collections.shuffle(entries);
+        entries.forEach(e -> network.train(e.getKey(), e.getValue()));
     }
 
     private void logErrors(NeuralNetwork network, int learningIterationsPassed) {
@@ -82,14 +96,18 @@ class NumbersNeuralNetworkTeacher {
     }
 
     private void logError(Map.Entry<double[], double[]> learningEntry, NeuralNetwork network, int learningIterationsPassed) {
+        if (learningIterationsPassed % 20 != 0) {
+            return;
+        }
         double[] result = network.test(learningEntry.getKey());
         double[] expected = learningEntry.getValue();
         double[] difference = difference(expected, result);
         log(format(
-                "Error after %s iterations for entry '%s': %s.",
+                "Error after %s iterations for entry '%s': %s. Result: %s.",
                 learningIterationsPassed,
-                converter.fromOutputToCategory(learningEntry.getKey()),
-                Arrays.toString(difference))
+                converter.fromOutputToCategory(learningEntry.getValue()),
+                Arrays.toString(difference),
+                Arrays.toString(result))
         );
     }
 

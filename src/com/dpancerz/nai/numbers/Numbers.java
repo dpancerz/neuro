@@ -1,4 +1,4 @@
-package com.dpancerz.nai;
+package com.dpancerz.nai.numbers;
 
 class Numbers {
     static final char ONE_CHAR = '@';
