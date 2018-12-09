@@ -1,6 +1,6 @@
 package com.dpancerz.nai.numbers;
 
-import com.dpancerz.nai.base.TrainingSet;
+import com.dpancerz.nai.base.config.TrainingSet;
 
 import java.util.AbstractMap;
 import java.util.HashMap;

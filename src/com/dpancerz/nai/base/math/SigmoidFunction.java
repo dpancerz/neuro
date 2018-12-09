@@ -1,7 +1,5 @@
 package com.dpancerz.nai.base.math;
 
-import com.dpancerz.nai.base.ActivationFunction;
-
 import java.util.function.DoubleUnaryOperator;
 
 import static java.lang.Math.E;

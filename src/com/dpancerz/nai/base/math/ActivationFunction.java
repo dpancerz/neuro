@@ -1,4 +1,4 @@
-package com.dpancerz.nai.base;
+package com.dpancerz.nai.base.math;
 
 import java.util.function.DoubleUnaryOperator;
 

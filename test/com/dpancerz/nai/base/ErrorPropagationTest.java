@@ -1,5 +1,6 @@
 package com.dpancerz.nai.base;
 
+import com.dpancerz.nai.base.math.ActivationFunction;
 import com.dpancerz.nai.base.math.LinearFunction;
 import org.junit.Assert;
 import org.junit.Test;

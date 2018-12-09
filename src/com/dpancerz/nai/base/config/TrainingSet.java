@@ -1,4 +1,4 @@
-package com.dpancerz.nai.base;
+package com.dpancerz.nai.base.config;
 
 import java.util.Map;
 import java.util.stream.Stream;

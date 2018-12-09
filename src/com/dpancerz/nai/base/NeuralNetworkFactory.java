@@ -1,5 +1,8 @@
 package com.dpancerz.nai.base;
 
+import com.dpancerz.nai.base.config.NeuralNetworkConfig;
+import com.dpancerz.nai.base.math.ActivationFunction;
+
 import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -7,16 +10,14 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 
-public class NeuralNetworkFactory {
-    public NeuralNetwork createNetwork(ActivationFunction activationFunction,
-                                       double learningCoefficient,
-                                       int inputSize,
-                                       int... layerSizes) {
-        LinkedList<NeuralLayer> layers = createLayers(activationFunction,
-                learningCoefficient, layerSizes);
-        createInputDendrites(inputSize, layers.getFirst());
+class NeuralNetworkFactory {
+    NeuralNetwork createNetwork(NeuralNetworkConfig config) {
+        LinkedList<NeuralLayer> layers = createLayers(config.activationFunction(),
+                config.learningCoefficient(),
+                config.layerSizes());
+        createInputDendrites(config.numberOfInputs(), layers.getFirst());
         connect(layers);
-        return new NeuralNetwork(layers, learningCoefficient);
+        return new NeuralNetwork(layers, config.learningCoefficient());
     }
 
     private LinkedList<NeuralLayer> createLayers(ActivationFunction activationFunction,

@@ -7,14 +7,14 @@ import java.util.stream.IntStream;
 
 import static java.lang.String.format;
 
-public class NeuralNetwork {
+class NeuralNetwork {
     private final LinkedList<NeuralLayer> layers;
     private final List<NeuralNetworkOutput> outputHolders;
     private final int inputSize;
     private final int outputSize;
     private final double learningCoefficient;
 
-    public NeuralNetwork(LinkedList<NeuralLayer> layers,
+    NeuralNetwork(LinkedList<NeuralLayer> layers,
                          double learningCoefficient) {
         this.layers = layers;
         this.inputSize = layers.getFirst().inputSize();
@@ -23,7 +23,7 @@ public class NeuralNetwork {
         this.learningCoefficient = learningCoefficient;
     }
 
-    public double[] output() {
+    double[] output() {
         return outputHolders.stream()
                 .mapToDouble(ValueHolder::value)
                 .toArray();
