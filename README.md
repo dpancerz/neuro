@@ -6,6 +6,7 @@ To implement a concrete neural network you have to provide a training set, test 
 Two (basically the same) examples provided using regular strings as input:
 
 static final String A =
+
                 " @@ "
               + "@  @"
               + "@  @"
