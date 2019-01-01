@@ -10,20 +10,20 @@ public class NeuralNetworkConfig {
     private final int[] layerSizes;
     private final double learningCoefficient;
     private final ActivationFunction activationFunction;
-    private final int learningIterations;
+    private final int learningEpochs;
     private final boolean trainFixedTimes;
 
     public NeuralNetworkConfig(int numberOfInputs,
                                List<Integer> layerSizes,
                                double learningCoefficient,
                                ActivationFunction activationFunction,
-                               int learningIterations,
+                               int learningEpochs,
                                boolean trainFixedTimes) {
         this.numberOfInputs = numberOfInputs;
         this.layerSizes = toIntArray(layerSizes);
         this.learningCoefficient = learningCoefficient;
         this.activationFunction = activationFunction;
-        this.learningIterations = learningIterations;
+        this.learningEpochs = learningEpochs;
         this.trainFixedTimes = trainFixedTimes;
     }
 
@@ -47,8 +47,8 @@ public class NeuralNetworkConfig {
         return trainFixedTimes;
     }
 
-    public int learningIterations() {
-        return learningIterations;
+    public int learningEpochs() {
+        return learningEpochs;
     }
 
     private int[] toIntArray(List<Integer> intList) {

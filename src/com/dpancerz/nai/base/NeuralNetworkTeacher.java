@@ -44,7 +44,7 @@ public class NeuralNetworkTeacher {
 
     private void train(NeuralNetwork network, NeuralNetworkConfig config) {
         if (config.isTrainingFixedTimes()) {
-            trainTimes(config.learningIterations(), network);
+            trainTimes(config.learningEpochs(), network);
         }
     }
 

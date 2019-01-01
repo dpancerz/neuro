@@ -1,6 +1,6 @@
 package com.dpancerz.nai;
 
-import com.dpancerz.nai.letters.LettersFacade;
+import com.dpancerz.nai.movement.LettersFacade;
 
 public class Main {
     public static void main(String[] args) {
