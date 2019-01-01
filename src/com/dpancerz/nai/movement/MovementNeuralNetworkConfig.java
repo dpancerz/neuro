@@ -34,16 +34,19 @@ public class MovementNeuralNetworkConfig {
         private int numberOfEpochs;
         private int hiddenLayerSize;
 
-        public void learningCoefficient(double learningCoefficient) {
+        public Builder learningCoefficient(double learningCoefficient) {
             this.learningCoefficient = learningCoefficient;
+            return this;
         }
 
-        public void numberOfEpochs(int numberOfEpochs) {
+        public Builder numberOfEpochs(int numberOfEpochs) {
             this.numberOfEpochs = numberOfEpochs;
+            return this;
         }
 
-        public void hiddenLayerSize(int hiddenLayerSize) {
+        public Builder hiddenLayerSize(int hiddenLayerSize) {
             this.hiddenLayerSize = hiddenLayerSize;
+            return this;
         }
 
         public MovementNeuralNetworkConfig build() {
