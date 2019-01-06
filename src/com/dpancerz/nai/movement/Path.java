@@ -20,5 +20,5 @@ class Path {
     static final String TEST_SET_CATEGORIES = TEST_SET_ROOT + S + "y_test.txt";//"5" - maps to category
     static final String TEST_PERSON_MEASURED = TEST_SET_ROOT + S + "subject_test.txt"; //"13"; unused, not checking this one
 
-
+    static final String LOG_FILE_PATH = DATA_ROOT + S + "log.txt";
 }

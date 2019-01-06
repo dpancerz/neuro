@@ -7,21 +7,34 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.util.*;
+import java.util.function.Function;
 
 import static com.dpancerz.nai.movement.MovementDataFacade.SPACE;
 import static com.dpancerz.nai.movement.Path.*;
+import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 class MovementDataConverter implements TrainingDataConverter<MovementType> {
     private final int outputLength;
+    private final Map<Integer, MovementType> outputCategories;
     private final DecimalFormat format;
-    FileStreamer streamer;
+    private final FileStreamer streamer;
 
-    MovementDataConverter(int outputLength) {
-        this.outputLength = outputLength;
+    MovementDataConverter(Set<MovementType> outputCategories, FileStreamer streamer) {
+        this.outputLength = outputCategories.size();
+        this.outputCategories = asMap(outputCategories);
+        this.streamer = streamer;
         this.format = new DecimalFormat("0.#######E000",
                 new DecimalFormatSymbols(Locale.ENGLISH));
         format.setParseBigDecimal(true);
+    }
+
+    private Map<Integer, MovementType> asMap(Set<MovementType> outputCategories) {
+        return outputCategories.stream()
+                .collect(toMap(
+                        MovementType::getCategory,
+                        Function.identity()));
     }
 
     Map<double[], double[]> extractTrainingSet() {
@@ -75,6 +88,7 @@ class MovementDataConverter implements TrainingDataConverter<MovementType> {
     @Override
     public double[] toInput(String trainingObject) {
         return Arrays.stream(trainingObject.split(SPACE))
+                .filter(s -> !s.isBlank())
                 .map(this::parse)
                 .mapToDouble(BigDecimal::doubleValue)
                 .toArray();
@@ -98,12 +112,17 @@ class MovementDataConverter implements TrainingDataConverter<MovementType> {
 
     @Override
     public MovementType fromOutputToCategory(double[] result) {
-        return null;
+        int max = findMax(result);
+        return Optional
+                .ofNullable(outputCategories.get(max))
+                .orElseThrow(() -> new IllegalArgumentException(format(
+                        "could not find category for '%s', read as '%s', outputCategories: '%s'",
+                        Arrays.toString(result), max, outputCategories)));
     }
 
     @Override
     public int findMax(double[] result) {
-        int indexOfMax = 0;
+        int indexOfMax = 1; // IMPORTANT! apply to master as well
         double max = result[0];
         for (int i = 0; i < result.length - 1; i++) {// 00001 -> 5, 00100 -> 3
             if (max < result[i + 1]) {

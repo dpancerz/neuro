@@ -5,6 +5,7 @@ import com.dpancerz.nai.base.config.NeuralNetworkConfig;
 import com.dpancerz.nai.base.config.TrainingDataConverter;
 import com.dpancerz.nai.base.config.TrainingSet;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 import static java.lang.String.format;
+import static java.lang.String.join;
 import static java.util.stream.Collectors.toList;
 
 public class NeuralNetworkTeacher {
@@ -78,19 +80,25 @@ public class NeuralNetworkTeacher {
     }
 
     private void logError(Map.Entry<double[], double[]> learningEntry, NeuralNetwork network, int learningIterationsPassed) {
-        if (learningIterationsPassed % 20 != 0) {
+        if (learningIterationsPassed % 10 != 0) {
             return;
         }
         double[] result = network.test(learningEntry.getKey());
         double[] expected = learningEntry.getValue();
         double[] difference = difference(expected, result);
-        log(format(
-                "Error after %s iterations for entry '%s': %s. Result: %s.",
-                learningIterationsPassed,
-                converter.fromOutputToCategory(learningEntry.getValue()),
-                Arrays.toString(difference),
-                Arrays.toString(result))
+        log(join(";",
+                Integer.toString(learningIterationsPassed),
+                converter.fromOutputToCategory(learningEntry.getValue()).toString(),
+                asCsv(difference),
+                asCsv(result))
         );
+    }
+
+    private String asCsv(double[] actual) {
+        return Arrays.stream(actual)
+                .mapToObj(Double::toString)
+                .reduce((a, b) -> join(";", a, b))
+                .orElse("");
     }
 
     private double[] difference(double[] expected, double[] actual) {

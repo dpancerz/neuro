@@ -5,24 +5,25 @@ import com.dpancerz.nai.base.config.NeuralNetworkConfig;
 import com.dpancerz.nai.base.math.SigmoidFunction;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 import static com.dpancerz.nai.movement.Path.*;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 public class MovementDataFacade {
-    FileStreamer streamer;
+    private final FileStreamer streamer;
 
     static final int SECOND_LAYER_SIZE = 6;
     public static final String SPACE = " ";
 
+    public MovementDataFacade() {
+        this.streamer = new FileStreamer();
+    }
+
     public void teachNeuralNetwork(MovementNeuralNetworkConfig config) {
         int inputVectorSize = getInputVectorSize();
         Set<MovementType> categoryLabels = getCategoryLabels();
-        int outputVectorSize = categoryLabels.size();
 
-        MovementDataConverter converter = new MovementDataConverter(outputVectorSize);
+        MovementDataConverter converter = new MovementDataConverter(categoryLabels, streamer);
 
         Map<double[], double[]> trainingSet = converter.extractTrainingSet();
         Map<double[], double[]> testSet = converter.extractTestSet();
@@ -41,7 +42,7 @@ public class MovementDataFacade {
                         true
                 ),
                 converter,
-                System.out::println
+                new MovementNeuralNetworkLogger(LOG_FILE_PATH)
         );
         teacher.run();
     }
