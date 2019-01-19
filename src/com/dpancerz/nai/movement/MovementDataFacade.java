@@ -7,6 +7,7 @@ import com.dpancerz.nai.base.math.SigmoidFunction;
 import java.util.*;
 
 import static com.dpancerz.nai.movement.Path.*;
+import static java.lang.String.format;
 import static java.util.stream.Collectors.toSet;
 
 public class MovementDataFacade {
@@ -19,7 +20,7 @@ public class MovementDataFacade {
         this.streamer = new FileStreamer();
     }
 
-    public void teachNeuralNetwork(MovementNeuralNetworkConfig config) {
+    public NeuralNetworkTeacher buildNeuralNetworkTeacher(MovementNeuralNetworkConfig config) {
         int inputVectorSize = getInputVectorSize();
         Set<MovementType> categoryLabels = getCategoryLabels();
 
@@ -28,7 +29,15 @@ public class MovementDataFacade {
         Map<double[], double[]> trainingSet = converter.extractTrainingSet();
         Map<double[], double[]> testSet = converter.extractTestSet();
 
-        NeuralNetworkTeacher teacher = new NeuralNetworkTeacher(
+        return getNeuralNetworkTeacher(config, inputVectorSize, converter, trainingSet, testSet);
+    }
+
+    private NeuralNetworkTeacher getNeuralNetworkTeacher(MovementNeuralNetworkConfig config,
+                                                         int inputVectorSize,
+                                                         MovementDataConverter converter,
+                                                         Map<double[], double[]> trainingSet,
+                                                         Map<double[], double[]> testSet) {
+        return new NeuralNetworkTeacher(
                 new MovementTrainingSet(
                         trainingSet,
                         testSet
@@ -42,9 +51,19 @@ public class MovementDataFacade {
                         true
                 ),
                 converter,
-                new MovementNeuralNetworkLogger(LOG_FILE_PATH)
+                new MovementNeuralNetworkLogger(
+                        format(LOG_FILE_PATH_TEMPLATE,
+                                config.getLearningCoefficient(),
+                                config.getNumberOfEpochs(),
+                                config.getHiddenLayerSize())
+                ),
+                new MovementNeuralNetworkLogger(
+                        format(RESULT_FILE_PATH,
+                                config.getLearningCoefficient(),
+                                config.getNumberOfEpochs(),
+                                config.getHiddenLayerSize())
+                )
         );
-        teacher.run();
     }
 
     private int getInputVectorSize() {

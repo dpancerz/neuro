@@ -5,46 +5,59 @@ import com.dpancerz.nai.base.config.NeuralNetworkConfig;
 import com.dpancerz.nai.base.config.TrainingDataConverter;
 import com.dpancerz.nai.base.config.TrainingSet;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static java.lang.String.format;
 import static java.lang.String.join;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 public class NeuralNetworkTeacher {
     private final TrainingSet trainingSet;
     private final NeuralNetworkConfig config;
     private final TrainingDataConverter converter;
-    private final Logger logger;
+    private final Logger dataLogger;
+    private final Logger resultLogger;
+    private NeuralNetwork network;
 
     public NeuralNetworkTeacher(TrainingSet trainingSet,
                                 NeuralNetworkConfig config,
                                 TrainingDataConverter converter,
-                                Logger logger) {
+                                Logger dataLogger,
+                                Logger resultLogger) {
         this.trainingSet = trainingSet;
         this.config = config;
         this.converter = converter;
-        this.logger = logger;
+        this.dataLogger = dataLogger;
+        this.resultLogger = resultLogger;
     }
 
-    public void run() {
-        NeuralNetwork network = createNetwork(config);
+    public NeuralNetworkTeacher run() {
+        init();
+        train();
+        logResultAfterRun(0);
+        return this;
+    }
 
-        train(network, config);
+    public NeuralNetworkTeacher reRunTimes(int times) {
+        IntStream.range(2, times + 2)
+                .forEach(i -> {
+                    train();
+                    logResultAfterRun(i);
+                });
+        return this;
+    }
 
-        verify(network);
+    private void init() {
+        network = createNetwork(config);
     }
 
     private NeuralNetwork createNetwork(NeuralNetworkConfig config) {
         return new NeuralNetworkFactory().createNetwork(config);
     }
 
-    private void train(NeuralNetwork network, NeuralNetworkConfig config) {
+    private void train() {
         if (config.isTrainingFixedTimes()) {
             trainTimes(config.learningEpochs(), network);
         }
@@ -64,14 +77,19 @@ public class NeuralNetworkTeacher {
         entries.forEach(e -> network.train(e.getKey(), e.getValue()));
     }
 
-    private void verify(NeuralNetwork network) {
-        log("testing training set:");
-        trainingSet.trainingSet()
-                .forEach(e -> test(network, e.getKey(), e.getValue()));
+    private void logResultAfterRun(int rerun) {
+        int number = config.learningEpochs() * (rerun + 1);
+        logResult(number + ";" +
+                Double.toString(correctRecognitionFraction())
+        );
+    }
 
-        log("testing test set:");
-        trainingSet.verification()
-                .forEach(e -> test(network, e.getKey(), e.getValue()));
+    private double correctRecognitionFraction() {
+        return trainingSet.verification()
+                .map(e -> test(network, e.getKey(), e.getValue()))
+                .mapToDouble(recognized -> recognized ? 1.0 : 0.0)
+                .average()
+                .orElse(0.0);
     }
 
     private void logErrors(NeuralNetwork network, int learningIterationsPassed) {
@@ -86,7 +104,7 @@ public class NeuralNetworkTeacher {
         double[] result = network.test(learningEntry.getKey());
         double[] expected = learningEntry.getValue();
         double[] difference = difference(expected, result);
-        log(join(";",
+        logData(join(";",
                 Integer.toString(learningIterationsPassed),
                 converter.fromOutputToCategory(learningEntry.getValue()).toString(),
                 asCsv(difference),
@@ -109,19 +127,17 @@ public class NeuralNetworkTeacher {
         return diff;
     }
 
-    private void log(String message) {
-        logger.log(message);
+    private void logData(String message) {
+        dataLogger.log(message);
     }
 
-    private void test(NeuralNetwork network, double[] input, double[] category) {
+    private boolean test(NeuralNetwork network, double[] input, double[] category) {
         double[] result = network.test(input);
-        boolean passes = maxesEqual(category, result);
+        return maxesEqual(category, result);
+    }
 
-        log(passes ? format("correctly recognized %s",
-                converter.fromOutputToCategory(category))
-                : format("incorrectly recognized %s as %s",
-                converter.fromOutputToCategory(category),
-                converter.fromOutputToCategory(result)));
+    private void logResult(String message) {
+        resultLogger.log(message);
     }
 
     private boolean maxesEqual(double[] category, double[] result) {

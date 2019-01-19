@@ -10,9 +10,9 @@ class MovementNeuralNetworkLogger implements Logger {
     private final String filePath;
     private final boolean isFileAccessible;
 
-    MovementNeuralNetworkLogger(String filePath) {
-        this.filePath = filePath;
-        this.isFileAccessible = tryMakeFileAccessible(filePath);
+    MovementNeuralNetworkLogger(String logFilePath) {
+        this.filePath = logFilePath;
+        this.isFileAccessible = tryMakeFileAccessible(logFilePath);
     }
 
     private boolean tryMakeFileAccessible(String filePath) {

@@ -1,16 +1,24 @@
 package com.dpancerz.nai;
 
+import com.dpancerz.nai.experiment.NaiProjectExperiment;
 import com.dpancerz.nai.movement.MovementDataFacade;
 import com.dpancerz.nai.movement.MovementNeuralNetworkConfig;
 
 public class Main {
 
-    // usage: java -asdfasdf ?jar???  [learningCoefficient] [numberOfEpochs] [hiddenLayerSize]
-    // e.g. java -asdfas ???  0.01 2000 250
     public static void main(String[] args) {
+        new NaiProjectExperiment(
+                new MovementDataFacade()
+        ).runExperiment();
+    }
+
+    // arguments order: [learningCoefficient] [numberOfEpochs] [hiddenLayerSize]
+    public static void oldmain(String[] args) {
         MovementNeuralNetworkConfig config = readArguments(args);
 
-        new MovementDataFacade().teachNeuralNetwork(config);
+        new MovementDataFacade()
+                .buildNeuralNetworkTeacher(config)
+                .run();
     }
 
     private static MovementNeuralNetworkConfig readArguments(String[] args) {

@@ -12,10 +12,10 @@ class NeuralNetwork {
     private final List<NeuralNetworkOutput> outputHolders;
     private final int inputSize;
     private final int outputSize;
-    private final double learningCoefficient;
+    private double learningCoefficient;
 
     NeuralNetwork(LinkedList<NeuralLayer> layers,
-                         double learningCoefficient) {
+                  double learningCoefficient) {
         this.layers = layers;
         this.inputSize = layers.getFirst().inputSize();
         this.outputSize = layers.getLast().size();
@@ -39,6 +39,10 @@ class NeuralNetwork {
         pushThrough(input);
         calculateErrors(expectedOutput);
         learn();
+    }
+
+    void setLearningCoefficient(double learningCoefficient) {
+        this.learningCoefficient = learningCoefficient;
     }
 
     private void pushThrough(double[] input) {

@@ -21,4 +21,6 @@ class Path {
     static final String TEST_PERSON_MEASURED = TEST_SET_ROOT + S + "subject_test.txt"; //"13"; unused, not checking this one
 
     static final String LOG_FILE_PATH = DATA_ROOT + S + "log.txt";
+    static final String LOG_FILE_PATH_TEMPLATE = DATA_ROOT + S + "results" + S + "log_d_%s_num_%s_hid_%s.txt";
+    static final String RESULT_FILE_PATH = DATA_ROOT + S + "results" + S + "res_d_%s_num_%s_hid_%s.txt";
 }
